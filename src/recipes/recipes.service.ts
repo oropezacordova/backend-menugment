@@ -21,15 +21,20 @@ export class RecipesService {
     const category = await this.categoriesService.findOne(
       createRecipeDto.category,
     );
-    return this.recipesRepository.save({
+    const recipe = await this.recipesRepository.save({
       ...createRecipeDto,
       user,
       category,
     });
+    delete recipe.user;
+    delete recipe.category;
+    return recipe;
   }
 
   findAll() {
-    return this.recipesRepository.find();
+    return this.recipesRepository.find({
+      relations: { comments: true, likes: true },
+    });
   }
 
   async findOne(id: number) {
@@ -38,11 +43,9 @@ export class RecipesService {
     }
     const recipe = await this.recipesRepository.findOne({
       where: { id },
-      relations: { user: true, category: true },
+      relations: { user: true, category: true, comments: true, likes: true },
     });
-    if (recipe && recipe.user) {
-      delete recipe.user.password;
-    }
+    delete recipe.user.password;
     return recipe;
   }
 

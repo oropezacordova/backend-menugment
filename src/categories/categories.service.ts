@@ -29,10 +29,6 @@ export class CategoriesService implements OnModuleInit {
     }
   }
 
-  create(createCategoryDto: CreateCategoryDto) {
-    return this.categoriesRepository.save(createCategoryDto);
-  }
-
   findAll() {
     return this.categoriesRepository.find({ relations: { recipes: true } });
   }
@@ -45,15 +41,5 @@ export class CategoriesService implements OnModuleInit {
       where: { id },
       relations: { recipes: true },
     });
-  }
-
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    this.findOne(id);
-    return this.categoriesRepository.update(id, updateCategoryDto);
-  }
-
-  remove(id: number) {
-    this.findOne(id);
-    return this.categoriesRepository.delete(id);
   }
 }
