@@ -6,6 +6,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { CommentsModule } from './comments/comments.module';
 import { LikesModule } from './likes/likes.module';
 import { AuthModule } from './auth/auth.module';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -26,5 +27,6 @@ import { AuthModule } from './auth/auth.module';
     LikesModule,
     AuthModule,
   ],
+  providers: [AppService],
 })
 export class AppModule {}

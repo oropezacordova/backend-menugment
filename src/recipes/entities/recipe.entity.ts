@@ -25,6 +25,8 @@ export class Recipe {
   ingredients: string;
   @Column()
   instructions: string;
+  @Column('text', { array: true, default: [] })
+  files: string[];
   @CreateDateColumn()
   created_at: Date;
   @UpdateDateColumn()

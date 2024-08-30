@@ -1,45 +1,40 @@
-import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class CategoriesService implements OnModuleInit {
+export class CategoriesService {
   constructor(
     @InjectRepository(Category)
     private categoriesRepository: Repository<Category>,
   ) {}
 
-  async onModuleInit() {
-    const categories = [
-      { name: 'Pizza' },
-      { name: 'Pasta' },
-      { name: 'Sushi' },
-      { name: 'Burger' },
-      { name: 'Salad' },
-    ];
+  async findAll() {
+    const categories = await this.categoriesRepository.find({
+      relations: { recipes: { user: true } },
+    });
     for (const category of categories) {
-      if (
-        !(await this.categoriesRepository.existsBy({ name: category.name }))
-      ) {
-        await this.categoriesRepository.save(category);
+      for (const recipe of category.recipes) {
+        if (recipe.user) {
+          delete recipe.user.password;
+        }
       }
     }
-  }
-
-  findAll() {
-    return this.categoriesRepository.find({ relations: { recipes: true } });
+    return categories;
   }
 
   async findOne(id: number) {
     if (!(await this.categoriesRepository.existsBy({ id }))) {
       throw new NotFoundException(`Category with id ${id} not found`);
     }
-    return this.categoriesRepository.findOne({
+    const category = await this.categoriesRepository.findOne({
       where: { id },
-      relations: { recipes: true },
+      relations: { recipes: { user: true } },
     });
+    for (const recipe of category.recipes) {
+      delete recipe.user.password;
+    }
+    return category;
   }
 }

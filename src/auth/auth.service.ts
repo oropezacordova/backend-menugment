@@ -20,10 +20,19 @@ export class AuthService {
       .where('user.email = :email', { email: credentialsDto.email })
       .orWhere('user.username = :username', { username: credentialsDto.email })
       .getOne();
-    if (!(await bcrypt.compare(credentialsDto.password, user.password))) {
-      throw new UnauthorizedException('Invalid password');
+    if (!user) {
+      throw new UnauthorizedException("User doesn't exist");
     }
-    const payload = { user_id: user.id, username: user.username };
-    return { accessToken: await this.jwtService.signAsync(payload) };
+    const passwordMatch = await bcrypt.compare(
+      credentialsDto.password,
+      user.password,
+    );
+    if (!passwordMatch) {
+      throw new UnauthorizedException('Incorrect password');
+    }
+    const payload = { userId: user.id, email: user.email };
+    return {
+      accessToken: this.jwtService.sign(payload),
+    };
   }
 }

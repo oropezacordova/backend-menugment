@@ -24,7 +24,9 @@ export class UsersService {
   }
 
   async findAll() {
-    const users = await this.usersRepository.find();
+    const users = await this.usersRepository.find({
+      relations: { recipes: { category: true } },
+    });
     for (const user of users) {
       delete user.password;
     }
@@ -37,15 +39,26 @@ export class UsersService {
     }
     const user = await this.usersRepository.findOne({
       where: { id },
-      relations: { recipes: true },
+      relations: { recipes: { category: true } },
     });
     delete user.password;
     return user;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    this.findOne(id);
-    return this.usersRepository.update(id, updateUserDto);
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    const user = await this.findOne(id);
+    if (updateUserDto.password) {
+      const passwordHash = await bcrypt.hash(updateUserDto.password, 10);
+      return this.usersRepository.update(id, {
+        ...updateUserDto,
+        password: passwordHash,
+      });
+    } else {
+      return this.usersRepository.update(id, {
+        ...updateUserDto,
+        password: user.password,
+      });
+    }
   }
 
   remove(id: number) {
