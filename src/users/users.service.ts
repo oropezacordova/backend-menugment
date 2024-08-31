@@ -24,9 +24,7 @@ export class UsersService {
   }
 
   async findAll() {
-    const users = await this.usersRepository.find({
-      relations: { recipes: { category: true } },
-    });
+    const users = await this.usersRepository.find();
     for (const user of users) {
       delete user.password;
     }
@@ -39,7 +37,6 @@ export class UsersService {
     }
     const user = await this.usersRepository.findOne({
       where: { id },
-      relations: { recipes: { category: true } },
     });
     delete user.password;
     return user;

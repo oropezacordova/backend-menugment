@@ -36,17 +36,13 @@ export class RecipesService {
       files: photos,
     });
     delete recipe.user;
-    delete recipe.category;
     return recipe;
   }
 
   async findAll() {
     const recipes = await this.recipesRepository.find({
-      relations: { user: true, comments: true, likes: true, category: true },
+      relations: { category: true },
     });
-    for (const recipe of recipes) {
-      delete recipe.user.password;
-    }
     return recipes;
   }
 
@@ -56,9 +52,8 @@ export class RecipesService {
     }
     const recipe = await this.recipesRepository.findOne({
       where: { id },
-      relations: { user: true, category: true, comments: true, likes: true },
+      relations: { category: true },
     });
-    delete recipe.user.password;
     return recipe;
   }
 
