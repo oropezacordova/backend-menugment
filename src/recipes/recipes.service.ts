@@ -41,7 +41,10 @@ export class RecipesService {
 
   async findAll() {
     const recipes = await this.recipesRepository.find({
-      relations: { category: true },
+      relations: { category: true, user: true },
+    });
+    recipes.forEach((recipe) => {
+      delete recipe.user.password;
     });
     return recipes;
   }
