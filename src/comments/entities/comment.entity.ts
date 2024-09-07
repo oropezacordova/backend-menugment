@@ -14,7 +14,7 @@ import {
 export class Comment {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column()
+  @Column({ nullable: false })
   content: string;
   @CreateDateColumn()
   created_at: Date;

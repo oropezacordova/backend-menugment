@@ -1,4 +1,9 @@
-import { Body, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Body,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,13 +19,31 @@ export class UsersService {
   ) {}
 
   async create(@Body() createUserDto: CreateUserDto) {
-    const passwordHash = await bcrypt.hash(createUserDto.password, 10);
-    const user = await this.usersRepository.save({
-      ...createUserDto,
-      password: passwordHash,
-    });
-    delete user.password;
-    return user;
+    try {
+      const passwordHash = await bcrypt.hash(createUserDto.password, 10);
+      const user = await this.usersRepository.save({
+        ...createUserDto,
+        password: passwordHash,
+      });
+      delete user.password;
+      return user;
+    } catch (error) {
+      if (
+        await this.usersRepository.existsBy({
+          username: createUserDto.username,
+        })
+      ) {
+        throw new ConflictException('Username already exists');
+      } else if (
+        await this.usersRepository.existsBy({
+          email: createUserDto.email,
+        })
+      ) {
+        throw new ConflictException('Email already exists');
+      } else {
+        throw error;
+      }
+    }
   }
 
   async findAll() {
@@ -32,14 +55,17 @@ export class UsersService {
   }
 
   async findOne(id: number) {
-    if (!(await this.usersRepository.existsBy({ id }))) {
-      throw new NotFoundException(`User with id ${id} not found`);
+    try {
+      const user = await this.usersRepository.findOne({
+        where: { id },
+      });
+      delete user.password;
+      return user;
+    } catch (error) {
+      if (!(await this.usersRepository.existsBy({ id }))) {
+        throw new NotFoundException(`User with id ${id} not found`);
+      }
     }
-    const user = await this.usersRepository.findOne({
-      where: { id },
-    });
-    delete user.password;
-    return user;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {

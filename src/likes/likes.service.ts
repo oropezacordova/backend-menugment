@@ -26,9 +26,12 @@ export class LikesService {
   }
 
   async remove(id: number) {
-    if (!(await this.likesRepository.existsBy({ id }))) {
-      throw new Error(`Like with id ${id} not found`);
+    try {
+      return this.likesRepository.delete(id);
+    } catch (error) {
+      if (!(await this.likesRepository.existsBy({ id }))) {
+        throw new Error(`Like with id ${id} not found`);
+      }
     }
-    return this.likesRepository.delete(id);
   }
 }

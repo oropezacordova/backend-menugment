@@ -14,11 +14,11 @@ import {
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column()
+  @Column({ unique: true, nullable: false })
   email: string;
-  @Column()
+  @Column({ unique: true, nullable: false })
   username: string;
-  @Column()
+  @Column({ nullable: false })
   password: string;
   @CreateDateColumn()
   created_at: Date;

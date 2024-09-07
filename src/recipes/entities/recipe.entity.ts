@@ -17,13 +17,13 @@ import {
 export class Recipe {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column()
+  @Column({ nullable: false })
   title: string;
-  @Column()
+  @Column({ nullable: false })
   content: string;
-  @Column()
+  @Column({ nullable: false })
   ingredients: string;
-  @Column()
+  @Column({ nullable: false })
   instructions: string;
   @Column('text', { array: true, default: [] })
   files: string[];

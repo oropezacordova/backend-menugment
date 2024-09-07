@@ -23,13 +23,18 @@ export class CategoriesService {
   }
 
   async findOne(id: number) {
-    if (!(await this.categoriesRepository.existsBy({ id }))) {
-      throw new NotFoundException(`Category with id ${id} not found`);
+    try {
+      const category = await this.categoriesRepository.findOne({
+        where: { id },
+      });
+      for (const recipe of category.recipes) {
+        delete recipe.user.password;
+      }
+      return category;
+    } catch (error) {
+      if (!(await this.categoriesRepository.existsBy({ id }))) {
+        throw new NotFoundException(`Category with id ${id} not found`);
+      }
     }
-    const category = await this.categoriesRepository.findOne({ where: { id } });
-    for (const recipe of category.recipes) {
-      delete recipe.user.password;
-    }
-    return category;
   }
 }

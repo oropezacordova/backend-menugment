@@ -50,14 +50,17 @@ export class RecipesService {
   }
 
   async findOne(id: number) {
-    if (!(await this.recipesRepository.existsBy({ id }))) {
-      throw new NotFoundException(`Recipe with id ${id} not found`);
+    try {
+      const recipe = await this.recipesRepository.findOne({
+        where: { id },
+        relations: { category: true },
+      });
+      return recipe;
+    } catch (error) {
+      if (!(await this.recipesRepository.existsBy({ id }))) {
+        throw new NotFoundException(`Recipe with id ${id} not found`);
+      }
     }
-    const recipe = await this.recipesRepository.findOne({
-      where: { id },
-      relations: { category: true },
-    });
-    return recipe;
   }
 
   async update(
