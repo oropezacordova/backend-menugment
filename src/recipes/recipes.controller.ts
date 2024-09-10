@@ -32,7 +32,7 @@ export class RecipesController {
     @Body() createRecipeDto: CreateRecipeDto,
     @Req() request: Request,
     @UploadedFiles()
-    files: Array<Express.Multer.File>,
+    files: Express.Multer.File[],
   ) {
     const payload: Request = request['user'];
     return this.recipesService.create(createRecipeDto, payload, files);

@@ -19,7 +19,7 @@ export class RecipesService {
   async create(
     createRecipeDto: CreateRecipeDto,
     payload: Request,
-    files: Array<Express.Multer.File>,
+    files: Express.Multer.File[],
   ) {
     const photos = [];
     for (const file of files) {
@@ -35,7 +35,7 @@ export class RecipesService {
       category,
       files: photos,
     });
-    delete recipe.user;
+    delete recipe.user.password;
     return recipe;
   }
 

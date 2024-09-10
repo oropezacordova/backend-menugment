@@ -11,10 +11,6 @@ async function bootstrap() {
     .setTitle('Menugement API')
     .setDescription('Site web for share recipes')
     .setVersion('1.0')
-    .addSecurity('basic', {
-      type: 'http',
-      scheme: 'basic',
-    })
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);

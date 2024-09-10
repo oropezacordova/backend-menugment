@@ -1,23 +1,29 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumberString, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumberString } from 'class-validator';
 
 export class CreateRecipeDto {
-  @IsString()
-  @IsNotEmpty()
   @ApiProperty()
+  @IsNotEmpty()
   title: string;
-  @IsString()
-  @IsNotEmpty()
   @ApiProperty()
+  @IsNotEmpty()
   content: string;
-  @IsString()
   @IsNotEmpty()
-  @ApiProperty()
-  ingredients: string;
-  @IsString()
+  @ApiProperty({
+    type: 'string',
+    format: 'text',
+    isArray: true,
+    required: true,
+  })
+  ingredients: string[];
   @IsNotEmpty()
-  @ApiProperty()
-  instructions: string;
+  @ApiProperty({
+    type: 'string',
+    format: 'text',
+    isArray: true,
+    required: true,
+  })
+  instructions: string[];
   @IsNumberString()
   @IsNotEmpty()
   @ApiProperty()
@@ -26,7 +32,7 @@ export class CreateRecipeDto {
     type: 'string',
     format: 'binary',
     isArray: true,
-    required: false,
+    required: true,
   })
   files: Array<Express.Multer.File>;
 }

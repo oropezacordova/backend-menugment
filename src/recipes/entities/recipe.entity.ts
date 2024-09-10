@@ -21,10 +21,10 @@ export class Recipe {
   title: string;
   @Column({ nullable: false })
   content: string;
-  @Column({ nullable: false })
-  ingredients: string;
-  @Column({ nullable: false })
-  instructions: string;
+  @Column('text', { array: true, default: [] })
+  ingredients: string[];
+  @Column('text', { array: true, default: [] })
+  instructions: string[];
   @Column('text', { array: true, default: [] })
   files: string[];
   @CreateDateColumn()
