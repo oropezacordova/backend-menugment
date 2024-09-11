@@ -1,17 +1,14 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateCommentDto {
-    @IsString()
-    @IsNotEmpty()
-    @ApiProperty()
-    content: string;
-    @IsNumber()
-    @IsNotEmpty()
-    @ApiProperty()
-    user: number;
-    @IsNumber()
-    @IsNotEmpty()
-    @ApiProperty()
-    recipe: number;
+  @IsString()
+  @IsNotEmpty()
+  content: string;
+  @IsNumber()
+  @IsNotEmpty()
+  user: number;
+  @IsNumber()
+  @IsNotEmpty()
+  recipe: number;
 }
