@@ -46,6 +46,12 @@ export class UsersService {
     }
   }
 
+  async findProfile(payload: Request) {
+    const user = await this.findOne(payload['user_id']);
+    delete user.password;
+    return user;
+  }
+
   async findAll() {
     const users = await this.usersRepository.find();
     for (const user of users) {
@@ -58,6 +64,7 @@ export class UsersService {
     try {
       const user = await this.usersRepository.findOne({
         where: { id },
+        relations: { recipes: true },
       });
       delete user.password;
       return user;

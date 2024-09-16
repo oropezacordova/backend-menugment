@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -25,6 +26,13 @@ export class UsersController {
   @Get()
   findAll() {
     return this.usersService.findAll();
+  }
+
+  @Get('profile')
+  @UseGuards(AuthGuard)
+  findProfile(@Req() request: Request) {
+    const payload: Request = request['user'];
+    return this.usersService.findProfile(payload);
   }
 
   @Get(':id')

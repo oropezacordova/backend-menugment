@@ -16,15 +16,7 @@ export class RecipesService {
     private readonly categoriesService: CategoriesService,
   ) {}
 
-  async create(
-    createRecipeDto: CreateRecipeDto,
-    payload: Request,
-    files: Express.Multer.File[],
-  ) {
-    const photos = [];
-    for (const file of files) {
-      photos.push(file.path);
-    }
+  async create(createRecipeDto: CreateRecipeDto, payload: Request) {
     const user = await this.usersService.findOne(payload['user_id']);
     const category = await this.categoriesService.findOne(
       createRecipeDto.category,
@@ -33,10 +25,20 @@ export class RecipesService {
       ...createRecipeDto,
       user,
       category,
-      files: photos,
     });
     delete recipe.user.password;
     return recipe;
+  }
+
+  async upload(id: number, files: Express.Multer.File[]) {
+    const photos = [];
+    for (const file of files) {
+      photos.push(file.path);
+    }
+    this.recipesRepository.update(id, {
+      files: photos,
+    });
+    return await this.findOne(id);
   }
 
   async findAll() {
@@ -53,8 +55,9 @@ export class RecipesService {
     try {
       const recipe = await this.recipesRepository.findOne({
         where: { id },
-        relations: { category: true },
+        relations: { category: true, user: true },
       });
+      delete recipe.user.password;
       return recipe;
     } catch (error) {
       if (!(await this.recipesRepository.existsBy({ id }))) {
@@ -63,23 +66,14 @@ export class RecipesService {
     }
   }
 
-  async update(
-    id: number,
-    updateRecipeDto: UpdateRecipeDto,
-    files: Array<Express.Multer.File>,
-  ) {
+  async update(id: number, updateRecipeDto: UpdateRecipeDto) {
     this.findOne(id);
-    const photos = [];
-    for (const file of files) {
-      photos.push(file.path);
-    }
     const category = await this.categoriesService.findOne(
       updateRecipeDto.category,
     );
     return this.recipesRepository.update(id, {
       ...updateRecipeDto,
       category,
-      files: photos,
     });
   }
 

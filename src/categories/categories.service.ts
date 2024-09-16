@@ -19,6 +19,15 @@ export class CategoriesService {
     try {
       const category = await this.categoriesRepository.findOne({
         where: { id },
+        relations: {
+          recipes: {
+            category: true,
+            user: true,
+          },
+        },
+      });
+      category.recipes.forEach((recipe) => {
+        delete recipe.user.password;
       });
       return category;
     } catch (error) {
