@@ -28,7 +28,7 @@ export class RecipesController {
     return this.recipesService.create(createRecipeDto, payload);
   }
 
-  @Post(':id/upload')
+  @Patch(':id/upload')
   @UseGuards(AuthGuard)
   @UseInterceptors(FilesInterceptor('files'))
   upload(

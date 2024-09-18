@@ -64,7 +64,7 @@ export class UsersService {
     try {
       const user = await this.usersRepository.findOne({
         where: { id },
-        relations: { recipes: true },
+        relations: { recipes: { category: true, user: true } },
       });
       delete user.password;
       return user;

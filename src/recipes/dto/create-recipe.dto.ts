@@ -11,7 +11,6 @@ export class CreateRecipeDto {
   ingredients: string[];
   @IsNotEmpty()
   instructions: string[];
-  @IsNumber()
   @IsNotEmpty()
   category: number;
 }

@@ -31,7 +31,7 @@ export class RecipesService {
   }
 
   async upload(id: number, files: Express.Multer.File[]) {
-    const photos = [];
+    const photos = (await this.findOne(id)).files;
     for (const file of files) {
       photos.push(file.path);
     }
@@ -67,14 +67,15 @@ export class RecipesService {
   }
 
   async update(id: number, updateRecipeDto: UpdateRecipeDto) {
-    this.findOne(id);
     const category = await this.categoriesService.findOne(
       updateRecipeDto.category,
     );
-    return this.recipesRepository.update(id, {
-      ...updateRecipeDto,
+    const { deletedImages, ...restOfUpdateDto } = updateRecipeDto;
+    this.recipesRepository.update(id, {
+      ...restOfUpdateDto,
       category,
     });
+    return this.findOne(id);
   }
 
   remove(id: number) {
