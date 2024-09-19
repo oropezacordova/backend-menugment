@@ -4,5 +4,5 @@ import { IsOptional } from 'class-validator';
 
 export class UpdateRecipeDto extends PartialType(CreateRecipeDto) {
   @IsOptional()
-  deletedImages: String[];
+  deletedImages: string[];
 }

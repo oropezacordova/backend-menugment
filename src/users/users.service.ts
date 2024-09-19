@@ -47,7 +47,7 @@ export class UsersService {
   }
 
   async findProfile(payload: Request) {
-    const user = await this.findOne(payload['user_id']);
+    const user = await this.findOne(payload['userId']);
     delete user.password;
     return user;
   }

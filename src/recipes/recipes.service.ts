@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,6 +10,8 @@ import { Recipe } from './entities/recipe.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { CategoriesService } from 'src/categories/categories.service';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class RecipesService {
@@ -17,7 +23,7 @@ export class RecipesService {
   ) {}
 
   async create(createRecipeDto: CreateRecipeDto, payload: Request) {
-    const user = await this.usersService.findOne(payload['user_id']);
+    const user = await this.usersService.findOne(payload['userId']);
     const category = await this.categoriesService.findOne(
       createRecipeDto.category,
     );
@@ -28,6 +34,44 @@ export class RecipesService {
     });
     delete recipe.user.password;
     return recipe;
+  }
+
+  async update(id: number, updateRecipeDto: UpdateRecipeDto) {
+    const category = await this.categoriesService.findOne(
+      updateRecipeDto.category,
+    );
+    this.deleteImage(updateRecipeDto.deletedImages, id);
+    const { deletedImages, ...restOfUpdateDto } = updateRecipeDto;
+    this.recipesRepository.update(id, {
+      ...restOfUpdateDto,
+      category,
+    });
+    return this.findOne(id);
+  }
+
+  async deleteImage(imagesDelete: string[], id: number) {
+    const recipe = await this.findOne(id);
+    const photos = recipe.files;
+    for (const image of imagesDelete) {
+      const index = photos.indexOf(image);
+      if (index > -1) {
+        const imagePath = path.join(
+          'D:',
+          'Projects',
+          'Menugement v2',
+          'backend',
+          image,
+        );
+        console.log(imagePath);
+        fs.unlink(imagePath, (err) => {
+          throw new InternalServerErrorException(err.message);
+        });
+        photos.splice(index, 1);
+      }
+    }
+    recipe.files = photos;
+    this.recipesRepository.update(id, recipe);
+    return await this.findOne(id);
   }
 
   async upload(id: number, files: Express.Multer.File[]) {
@@ -64,18 +108,6 @@ export class RecipesService {
         throw new NotFoundException(`Recipe with id ${id} not found`);
       }
     }
-  }
-
-  async update(id: number, updateRecipeDto: UpdateRecipeDto) {
-    const category = await this.categoriesService.findOne(
-      updateRecipeDto.category,
-    );
-    const { deletedImages, ...restOfUpdateDto } = updateRecipeDto;
-    this.recipesRepository.update(id, {
-      ...restOfUpdateDto,
-      category,
-    });
-    return this.findOne(id);
   }
 
   remove(id: number) {
