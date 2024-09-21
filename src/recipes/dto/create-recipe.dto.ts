@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsNumberString, IsString } from 'class-validator';
+import { ArrayNotEmpty, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateRecipeDto {
   @IsNotEmpty()
@@ -7,9 +7,11 @@ export class CreateRecipeDto {
   @IsNotEmpty()
   @IsString()
   content: string;
-  @IsNotEmpty()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
   ingredients: string[];
-  @IsNotEmpty()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
   instructions: string[];
   @IsNotEmpty()
   category: number;

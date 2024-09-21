@@ -46,12 +46,6 @@ export class UsersService {
     }
   }
 
-  async findProfile(payload: Request) {
-    const user = await this.findOne(payload['userId']);
-    delete user.password;
-    return user;
-  }
-
   async findAll() {
     const users = await this.usersRepository.find();
     for (const user of users) {
@@ -60,11 +54,17 @@ export class UsersService {
     return users;
   }
 
+  async findProfile(payload: Request) {
+    const user = await this.findOne(payload['userId']);
+    delete user.password;
+    return user;
+  }
+
   async findOne(id: number) {
     try {
       const user = await this.usersRepository.findOne({
         where: { id },
-        relations: { recipes: { category: true, user: true } },
+        relations: { recipes: { category: true, user: true, likes: true } },
       });
       delete user.password;
       return user;

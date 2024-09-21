@@ -24,10 +24,10 @@ import { extname } from 'path';
         },
       }),
       fileFilter: (req, file, cb) => {
-        if (file.mimetype === 'image/jpeg') {
+        if (file.mimetype.startsWith('image/')) {
           cb(null, true);
         } else {
-          cb(new BadRequestException('Only images files are allowed'), false);
+          cb(new BadRequestException('Only image files are allowed'), false);
         }
       },
     }),

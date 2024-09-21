@@ -1,6 +1,5 @@
 import {
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
@@ -42,11 +41,10 @@ export class RecipesService {
     );
     this.deleteImage(updateRecipeDto.deletedImages, id);
     const { deletedImages, ...restOfUpdateDto } = updateRecipeDto;
-    this.recipesRepository.update(id, {
+    return this.recipesRepository.update(id, {
       ...restOfUpdateDto,
       category,
     });
-    return this.findOne(id);
   }
 
   async deleteImage(imagesDelete: string[], id: number) {
@@ -62,16 +60,12 @@ export class RecipesService {
           'backend',
           image,
         );
-        console.log(imagePath);
-        fs.unlink(imagePath, (err) => {
-          throw new InternalServerErrorException(err.message);
-        });
+        fs.unlink(imagePath, (err) => {});
         photos.splice(index, 1);
       }
     }
     recipe.files = photos;
     this.recipesRepository.update(id, recipe);
-    return await this.findOne(id);
   }
 
   async upload(id: number, files: Express.Multer.File[]) {
@@ -79,15 +73,14 @@ export class RecipesService {
     for (const file of files) {
       photos.push(file.path);
     }
-    this.recipesRepository.update(id, {
+    return this.recipesRepository.update(id, {
       files: photos,
     });
-    return await this.findOne(id);
   }
 
   async findAll() {
     const recipes = await this.recipesRepository.find({
-      relations: { category: true, user: true },
+      relations: { category: true, user: true, likes: true },
     });
     recipes.forEach((recipe) => {
       delete recipe.user.password;
@@ -99,7 +92,7 @@ export class RecipesService {
     try {
       const recipe = await this.recipesRepository.findOne({
         where: { id },
-        relations: { category: true, user: true },
+        relations: { category: true, user: true, likes: true },
       });
       delete recipe.user.password;
       return recipe;

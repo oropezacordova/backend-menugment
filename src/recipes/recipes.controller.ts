@@ -28,6 +28,12 @@ export class RecipesController {
     return this.recipesService.create(createRecipeDto, payload);
   }
 
+  @Patch(':id')
+  @UseGuards(AuthGuard)
+  update(@Param('id') id: string, @Body() updateRecipeDto: UpdateRecipeDto) {
+    return this.recipesService.update(+id, updateRecipeDto);
+  }
+
   @Patch(':id/upload')
   @UseGuards(AuthGuard)
   @UseInterceptors(FilesInterceptor('files'))
@@ -46,15 +52,6 @@ export class RecipesController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.recipesService.findOne(+id);
-  }
-
-  @Patch(':id')
-  @UseGuards(AuthGuard)
-  update(
-    @Param('id') id: string,
-    @Body() updateRecipeDto: UpdateRecipeDto,
-  ) {
-    return this.recipesService.update(+id, updateRecipeDto);
   }
 
   @Delete(':id')
