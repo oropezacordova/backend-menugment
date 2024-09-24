@@ -1,28 +1,38 @@
 import {
   Controller,
   Post,
-  Body,
   Param,
-  Delete,
   UseGuards,
+  Req,
+  Delete,
+  Get,
 } from '@nestjs/common';
 import { LikesService } from './likes.service';
-import { CreateLikeDto } from './dto/create-like.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { find } from 'rxjs';
 
 @Controller('likes')
 export class LikesController {
   constructor(private readonly likesService: LikesService) {}
 
-  @Post()
+  @Post('recipe/:recipe')
   @UseGuards(AuthGuard)
-  create(@Body() createLikeDto: CreateLikeDto) {
-    return this.likesService.create(createLikeDto);
+  create(@Param('recipe') recipe: string, @Req() request: Request) {
+    const payload: Request = request['user'];
+    return this.likesService.create(payload, +recipe);
   }
 
-  @Delete(':id')
+  @Delete('recipe/:recipe')
   @UseGuards(AuthGuard)
-  remove(@Param('id') id: string) {
-    return this.likesService.remove(+id);
+  delete(@Param('recipe') recipe: string, @Req() request: Request) {
+    const payload: Request = request['user'];
+    return this.likesService.delete(payload, +recipe);
+  }
+
+  @Get('recipe/:recipe')
+  @UseGuards(AuthGuard)
+  findOne(@Param('recipe') recipe: string, @Req() request: Request) {
+    const payload: Request = request['user'];
+    return this.likesService.findOne(payload, +recipe);
   }
 }

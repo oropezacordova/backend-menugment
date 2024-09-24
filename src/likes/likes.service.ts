@@ -1,5 +1,4 @@
-import { Injectable } from '@nestjs/common';
-import { CreateLikeDto } from './dto/create-like.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like } from './entities/like.entity';
 import { Repository } from 'typeorm';
@@ -15,23 +14,26 @@ export class LikesService {
     private readonly recipesService: RecipesService,
   ) {}
 
-  async create(createLikeDto: CreateLikeDto) {
-    const user = await this.usersService.findOne(createLikeDto.user);
-    const recipe = await this.recipesService.findOne(createLikeDto.recipe);
+  async create(payload: Request, recipeId: number) {
+    const user = await this.usersService.findOne(payload['userId']);
+    const recipe = await this.recipesService.findOne(recipeId);
     return this.likesRepository.save({
-      ...createLikeDto,
       user,
       recipe,
     });
   }
 
-  async remove(id: number) {
-    try {
-      return this.likesRepository.delete(id);
-    } catch (error) {
-      if (!(await this.likesRepository.existsBy({ id }))) {
-        throw new Error(`Like with id ${id} not found`);
-      }
+  async delete(payload: Request, recipeId: number) {
+    const like = await this.findOne(payload, recipeId);
+    if (like) {
+      return this.likesRepository.delete(like.id);
     }
+  }
+
+  async findOne(payload: Request, recipeId: number) {
+    const like = await this.likesRepository.findOne({
+      where: { recipe: { id: recipeId }, user: { id: payload['userId'] } },
+    });
+    return like;
   }
 }

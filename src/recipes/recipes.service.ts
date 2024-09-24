@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -39,9 +36,9 @@ export class RecipesService {
     const category = await this.categoriesService.findOne(
       updateRecipeDto.category,
     );
-    this.deleteImage(updateRecipeDto.deletedImages, id);
+    await this.deleteImage(updateRecipeDto.deletedImages, id);
     const { deletedImages, ...restOfUpdateDto } = updateRecipeDto;
-    return this.recipesRepository.update(id, {
+    return await this.recipesRepository.update(id, {
       ...restOfUpdateDto,
       category,
     });
@@ -49,23 +46,16 @@ export class RecipesService {
 
   async deleteImage(imagesDelete: string[], id: number) {
     const recipe = await this.findOne(id);
-    const photos = recipe.files;
+    const photos = [...recipe.files];
     for (const image of imagesDelete) {
       const index = photos.indexOf(image);
-      if (index > -1) {
-        const imagePath = path.join(
-          'D:',
-          'Projects',
-          'Menugement v2',
-          'backend',
-          image,
-        );
-        fs.unlink(imagePath, (err) => {});
-        photos.splice(index, 1);
-      }
+      const imagePath = path.join(process.cwd(), image);
+      fs.unlink(imagePath, (err) => {});
+      photos.splice(index, 1);
     }
-    recipe.files = photos;
-    this.recipesRepository.update(id, recipe);
+    return await this.recipesRepository.update(id, {
+      files: photos,
+    });
   }
 
   async upload(id: number, files: Express.Multer.File[]) {
@@ -73,7 +63,7 @@ export class RecipesService {
     for (const file of files) {
       photos.push(file.path);
     }
-    return this.recipesRepository.update(id, {
+    return await this.recipesRepository.update(id, {
       files: photos,
     });
   }
